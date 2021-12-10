@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
+import React, { useState, useEffect} from "react";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents} from 'react-leaflet'
 import './Home.css'
+import axios from 'axios';
 
 function CustomMarker({marker, handleAddMarker}) {
     const map = 
@@ -10,12 +11,30 @@ function CustomMarker({marker, handleAddMarker}) {
           handleAddMarker([lat, lng]);
         },
       });
+      const [data, dataSet] = useState([null])
+      useEffect(() => {
+        axios.get("http://localhost:5500/?lat="+marker[0]+"&lng="+marker[1])
+        .then((res) => {
+            console.log("ADRESS = "+"http://localhost:5500/?lat="+marker[0]+"&lng="+marker[1])
+            let response = []
+            response = res.data.stations[0]
+
+            dataSet(response)
+        });
+      });
     return (
         marker.latitude !== 0 ? (
-        <Marker
-          position={marker}
-          interactive={false}
-        />
+        <Marker position={marker} interactive={true}>
+            <Popup>
+            CO    = {data["CO"]}<br/>
+            NO2   = {data["NO2"]}<br/>
+            OZONE = {data["OZONE"]}<br/>
+            PM10  = {data["PM10"]}<br/>
+            PM25  = {data["PM25"]}<br/>
+            SO2   = {data["SO2"]}<br/>
+            PAYS  = {data["countryCode"]}
+            </Popup>
+        </Marker>
       ) : null
     );}
 
@@ -26,7 +45,6 @@ const Home = () => {
         setMarkers([...markers]);
     }
 
-console.log(markers)
     return (
         <div className="home">
             <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={true}>
@@ -34,7 +52,7 @@ console.log(markers)
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-               {markers && markers.map && markers.map((markerPosition) => <CustomMarker handleAddMarker = {handleAddMarker} marker = {markerPosition}/>)}
+               {markers.map((markerPosition) => <CustomMarker handleAddMarker = {handleAddMarker} marker = {markerPosition}/>)}
             </MapContainer>
         </div>
     );
