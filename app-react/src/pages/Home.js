@@ -11,7 +11,7 @@ function CustomMarker({marker, handleAddMarker}) {
           handleAddMarker([lat, lng]);
         },
       });
-      const [data, dataSet] = useState([null])
+      const [data, dataSet] = useState([])
       useEffect(() => {
         axios.get("http://localhost:5500/?lat="+marker[0]+"&lng="+marker[1])
         .then((res) => {
@@ -21,7 +21,7 @@ function CustomMarker({marker, handleAddMarker}) {
 
             dataSet(response)
         });
-      });
+      }, {});
     return (
         marker.latitude !== 0 ? (
         <Marker position={marker} interactive={true}>
@@ -32,7 +32,6 @@ function CustomMarker({marker, handleAddMarker}) {
             PM10  = {data["PM10"]}<br/>
             PM25  = {data["PM25"]}<br/>
             SO2   = {data["SO2"]}<br/>
-            PAYS  = {data["countryCode"]}
             </Popup>
         </Marker>
       ) : null
